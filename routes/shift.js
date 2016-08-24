@@ -18,26 +18,33 @@ exports.getShifts = function(req, res){
 		shifts: []
 	};
   
-	db.view('shifts/shiftsByUser', {include_docs: true, key}, function (err, docs) {
-		if(err){
-      console.log(err);
-			res.status(500).send(err);
-		}else{    
+	if(req.query.when !== undefined){;
+  	db.view('shifts/shiftsByUser', {key: req.query.user, include_docs: true}, function (err, docs) {
+  		if(err){
+        console.log(err);
+  			res.status(500).send(err);
+  		}
   		if(docs){
-        console.log(docs.length)
   		  docs.forEach(function(doc) {
   				var item = doc.data;
-  				item.id = doc._id;
-  				item.rev = doc.rev;
-  				response.shifts.push(item);
+          
+          var now = Math.floor(Date.now() / 1000);
+          
+          if(item.dateTimeStamp > (now - (86400 * 7)) && item.dateTimeStamp < now && req.query.when == 'last' || item.dateTimeStamp < (now + (86400 * 7)) && item.dateTimeStamp > now && req.query.when == 'next'){
+    				item.id = doc._id;
+    				item.rev = doc.rev;
+    				response.shifts.push(item); 
+          }
   		  });
 	
   			res.status(200).send(response);
   		}else{
   			res.status(404).send([]);
   		}
-    }
-  });
+    });
+  }else{
+    res.status(404).send(response);
+	}
 };
 
 

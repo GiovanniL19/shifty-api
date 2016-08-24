@@ -18,7 +18,7 @@ exports.getShifts = function(req, res){
 		shifts: []
 	};
   
-	if(req.query.when !== undefined){;
+	if(req.query.when !== undefined){
   	db.view('shifts/shiftsByUser', {key: req.query.user, include_docs: true}, function (err, docs) {
   		if(err){
         console.log(err);
@@ -42,9 +42,34 @@ exports.getShifts = function(req, res){
   			res.status(404).send([]);
   		}
     });
+  }else if(req.query.showHistory !== undefined){
+  	db.view('shifts/shiftsByUser', {key: req.query.user, include_docs: true}, function (err, docs) {
+  		if(err){
+        console.log(err);
+  			res.status(500).send(err);
+  		}
+  		if(docs){
+  		  docs.forEach(function(doc) {
+  				var item = doc.data;
+          
+          var now = Math.floor(Date.now() / 1000);
+          
+          if(item.dateTimeStamp < now){
+    				item.id = doc._id;
+    				item.rev = doc.rev;
+    				response.shifts.push(item); 
+          }
+  		  });
+	
+  			res.status(200).send(response);
+  		}else{
+  			res.status(404).send([]);
+  		}
+    });
   }else{
     res.status(404).send(response);
 	}
+  
 };
 
 

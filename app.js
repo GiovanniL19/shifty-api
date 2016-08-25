@@ -7,6 +7,7 @@ var express 			= require('express'),
 		md5    				= require('md5'),
     jwt           = require('express-jwt');
 
+//var db = new(cradle.Connection)('http://52.89.48.249', 5984).database('shifty');
 var db = new(cradle.Connection)().database('shifty');
 
 var user = require('./routes/user.js');

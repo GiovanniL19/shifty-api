@@ -6,6 +6,7 @@ var	cradle 				= require('cradle'),
 		bodyParser    = require('body-parser'),
 		md5    				= require('md5');
 
+//var db = new(cradle.Connection)('http://52.89.48.249', 5984).database('shifty');
 var db = new(cradle.Connection)().database('shifty');
 
 //CHECKS CREDENTIALS

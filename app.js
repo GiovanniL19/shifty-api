@@ -38,7 +38,7 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.use(jwt({ secret: 'shifty-api-token-secure'}).unless({path: ['/auth']}));
+app.use(jwt({ secret: 'shifty-api-token-secure'}).unless({path: ['/auth', '/users', '/check', '/resetPassword']}));
 
 app.use(function (err, req, res, next) {
   if (err.name === 'UnauthorizedError') {
@@ -53,9 +53,11 @@ app.get('/',function(req, res){
 
 // Users
 app.post('/auth', user.authenticate);
+app.post('/users', user.saveUser);
 app.get('/users/:user_id', user.getUser);
 app.put('/users/:user_id', user.updateUser);
 app.get('/check', user.check);
+app.get('/resetPassword', user.resetPassword);
 
 //Shifts
 app.get('/shifts/:shift_id', shift.getShift);

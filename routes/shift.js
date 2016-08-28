@@ -4,7 +4,9 @@ var	cradle 				= require('cradle'),
 		jwt           = require('jsonwebtoken'),
     LocalStrategy = require('passport-local').Strategy,
 		bodyParser    = require('body-parser'),
-		md5    				= require('md5');
+		md5    				= require('md5'),
+    moment    		= require('moment'),
+    async    			= require('async');
 
 //var db = new(cradle.Connection)('http://52.89.48.249', 5984).database('shifty');
 var db = new(cradle.Connection)().database('shifty');
@@ -19,7 +21,30 @@ exports.getShifts = function(req, res){
 		shifts: []
 	};
   
-	if(req.query.when !== undefined){
+  if(req.query.userID !== undefined && req.query.month !== undefined && req.query.year !== undefined){
+    db.view('shifts/shiftsByUser', {key: req.query.userID, include_docs: true}, function (err, docs) {
+  		if(err){
+        console.log(err);
+  			res.status(500).send(err);
+  		}
+  		if(docs){
+  		  async.eachSeries(docs, function(doc, nextDoc) {
+          var month = moment.unix(doc.doc.data.dateTimeStamp).format('M');
+          var year = moment.unix(doc.doc.data.dateTimeStamp).format('YYYY');
+          if(month == req.query.month && year == req.query.year){
+            var item = doc.doc.data;
+    				item.id = doc.doc._id;
+    				item.rev = doc.doc.rev;
+    				response.shifts.push(item); 
+          }
+          nextDoc();
+          
+        }, function done(){
+          res.status(200).send(response);
+        });
+      }
+    });
+  } else if(req.query.when !== undefined){
   	db.view('shifts/shiftsByUser', {key: req.query.user, include_docs: true}, function (err, docs) {
   		if(err){
         console.log(err);

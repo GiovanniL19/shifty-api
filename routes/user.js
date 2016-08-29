@@ -216,59 +216,62 @@ exports.resetPassword = function(req, res){
 	db.view('users/userByEmail', {key: req.query.email, include_docs: true}, function (err, docs) {
 		if(err){
 			res.status(500).send(err);
-		}
-    
-    var user = docs[0].doc;
+		}else{
+      if(docs.length > 0){
+        var user = docs[0].doc;
 
-    var text = "";
-    var possible = "!@£$%^&*(~)ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        var text = "";
+        var possible = "!@£$%^&*(~)ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-    for( var i=0; i < 8; i++){
-      text += possible.charAt(Math.floor(Math.random() * possible.length));
-    }
+        for( var i=0; i < 8; i++){
+          text += possible.charAt(Math.floor(Math.random() * possible.length));
+        }
     
-    var password = md5('j*(XY@^T%&!F%I)' + text + 'juxhUGBG@^&DF(A)');
+        var password = md5('j*(XY@^T%&!F%I)' + text + 'juxhUGBG@^&DF(A)');
     
-    console.log(text);
+        console.log(text);
     
-    user.data.secure.salt = password;
-    user.data.secure.tempPass = true;
+        user.data.secure.salt = password;
+        user.data.secure.tempPass = true;
     
-    db.save(docs[0].doc._id, user, function(err, dbRes) {
-      if (err) {
-        console.log('Could not update user');
-        console.log(err);
-        res.status(500).send(err);
-      } else {
-        console.log(docs[0].doc._id + ' has been updated');
+        db.save(docs[0].doc._id, user, function(err, dbRes) {
+          if (err) {
+            console.log('Could not update user');
+            console.log(err);
+            res.status(500).send(err);
+          } else {
+            console.log(docs[0].doc._id + ' has been updated');
         
-        var transport = nodemailer.createTransport('SMTP', {
-          host: 'mail.giovannilenguito.co.uk',
-          auth: {
-            user: "shifty@giovannilenguito.co.uk",
-            pass: "f/Uyq-Rzr"
+            var transport = nodemailer.createTransport('SMTP', {
+              host: 'mail.giovannilenguito.co.uk',
+              auth: {
+                user: "shifty@giovannilenguito.co.uk",
+                pass: "f/Uyq-Rzr"
+              }
+            });
+        
+            var mailOptions = {
+              from: '"Shifty" <shifty@giovannilenguito.co.uk>', // sender address
+              to: user.data.identity.email, // list of receivers
+              subject: 'Shifty Password Reset', // Subject line
+              html: 'Your generated password is: <b>'+text+'</b>.<br>Please change your password when you login.' // html body
+            };
+
+            // send mail with defined transport object
+            transport.sendMail(mailOptions, function(error, info){
+              if(error){
+                console.log(error);
+                res.status(200).send(false);
+              }else{
+                console.log('Message sent: ' + info.response);
+                res.status(200).send(true);
+              }
+            });
           }
         });
-        
-        var mailOptions = {
-          from: '"Shifty" <shifty@giovannilenguito.co.uk>', // sender address
-          to: user.data.identity.email, // list of receivers
-          subject: 'Shifty Password Reset', // Subject line
-          html: 'Your generated password is: <b>'+text+'</b>.<br>Please change your password when you login.' // html body
-        };
-
-        // send mail with defined transport object
-        transport.sendMail(mailOptions, function(error, info){
-          if(error){
-            console.log(error);
-            res.status(200).send(false);
-          }else{
-            console.log('Message sent: ' + info.response);
-            res.status(200).send(true);
-          }
-        });
+      }else{
+        res.status(404).send('Not Found User');
       }
-    });
-    
+    }
   });
 };

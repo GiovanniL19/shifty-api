@@ -131,8 +131,6 @@ exports.getShifts = function(req, res){
 exports.getShift = function(req, res){
 	db.get(req.param('shift_id'), function (err, doc) {
 		if(doc){
-			delete doc._rev;
-		
 			var response = {
 				shift: doc.data
 			};

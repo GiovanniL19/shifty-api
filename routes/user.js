@@ -138,6 +138,7 @@ exports.updateUser = function(req, res){
       var currentUser = doc.data;
       
       var user = {
+        _rev: req.body.user.rev,
          data: req.body.user
        }
        
@@ -245,7 +246,7 @@ exports.resetPassword = function(req, res){
               host: 'mail.giovannilenguito.co.uk',
               auth: {
                 user: "shifty@giovannilenguito.co.uk",
-                pass: "f/Uyq-Rzr"
+                pass: "mnCJX/YVU"
               }
             });
         

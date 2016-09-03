@@ -12,6 +12,8 @@ var db = new(cradle.Connection)().database('shifty');
 
 var user = require('./routes/user.js');
 var shift = require('./routes/shift.js');
+var preset = require('./routes/preset.js');
+
 
 var port = 3002;
     
@@ -64,6 +66,13 @@ app.get('/shifts/:shift_id', shift.getShift);
 app.get('/shifts', shift.getShifts);
 app.post('/shifts', shift.postShift);
 app.delete('/shifts/:shift_id', shift.deleteShift);
+
+//Presets
+app.get('/presets/:preset_id', preset.getPreset);
+app.get('/presets', preset.getPresets);
+app.post('/presets', preset.postPreset);
+app.put('/presets/:preset_id', preset.updatePreset);
+app.delete('/presets/:preset_id', preset.deletePreset);
 
 app.listen(port);
 console.log('Running on http://localhost:' + port);

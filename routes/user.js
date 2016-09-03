@@ -138,7 +138,6 @@ exports.updateUser = function(req, res){
       var currentUser = doc.data;
       
       var user = {
-    		_rev: req.body.user.rev,
          data: req.body.user
        }
        
